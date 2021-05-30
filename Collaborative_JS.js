@@ -256,6 +256,7 @@ function updateStatus(text) {
 function establishQueue(cb, qname = "", count = 1) {
 	if (count > MAX_RETRY) {
 		cb("Connection failed!", null);
+		return;
 	}
 	updateStatus(count > 1 ? "Retrying..\t" : "" + "Generating queue name..");
 
