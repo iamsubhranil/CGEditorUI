@@ -232,7 +232,7 @@ var start = 0;
 var state = 0; // 0 = Insertion	1 = Deletion
 
 var QUEUE_NAME = "";
-const URL = "http://127.0.0.1:8081";
+const URL = "https://cgeditor-producer.herokuapp.com";
 const QUEUE_NAME_LENGTH = 64;
 // dec2hex :: Integer -> String
 // i.e. 0-255 -> '00'-'ff'
