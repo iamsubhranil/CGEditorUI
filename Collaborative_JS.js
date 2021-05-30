@@ -247,7 +247,7 @@ function generateId(len) {
 	return Array.from(arr, dec2hex).join("");
 }
 
-const MAX_RETRY = 64;
+const MAX_RETRY = 10;
 
 function updateStatus(text) {
 	document.getElementById("connection_status").innerHTML = text;
