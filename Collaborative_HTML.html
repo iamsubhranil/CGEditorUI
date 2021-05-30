@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Editor</title>
+</head>
+<body>
+	<input id="jointext">
+	<button id="joinbutton" onclick="performConnection(true)"> Join </button>
+	<button id="createbutton" onclick="performConnection(false)"> Create </button> 
+	<br>
+	<label id="connection_label"> Connection Status: </label>
+	<label id="connection_status"> Disconnected </label>
+	<br>
+	<label id="session_id_label"> Session ID: </label>
+	<label id="session_id_value"> - </label>
+	<br>
+	<div>
+		Rough Space <br>
+	<textarea id="textSpace"></textarea>
+	</div>
+	<div>
+		<br>Fair Space <br>
+	<textarea id="fairText"></textarea>
+	</div>
+</body>
+<script src="Collaborative_JS.js"></script>
+</html>
