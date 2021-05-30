@@ -296,6 +296,8 @@ function establishQueue(cb, qname = "", count = 1) {
 }
 
 function performConnection(isJoin) {
+    // reset session id
+    document.getElementById("session_id_value").innerHTML = "-";
 	updateStatus("Connecting..");
 	var qname = "";
 	if (isJoin) {
