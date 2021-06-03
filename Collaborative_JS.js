@@ -232,7 +232,10 @@ var start = 0;
 var state = 0; // 0 = Insertion	1 = Deletion
 
 var QUEUE_NAME = "";
-const URL = "https://cgeditor-producer.herokuapp.com";
+const URL = process.env.PRODUCERURL;
+if (URL == null || URL.length == 0) {
+	console.log("[!] Error: Set PRODUCERURL environemnt variable first!");
+}
 const QUEUE_NAME_LENGTH = 64;
 // dec2hex :: Integer -> String
 // i.e. 0-255 -> '00'-'ff'
@@ -296,8 +299,8 @@ function establishQueue(cb, qname = "", count = 1) {
 }
 
 function performConnection(isJoin) {
-    // reset session id
-    document.getElementById("session_id_value").innerHTML = "-";
+	// reset session id
+	document.getElementById("session_id_value").innerHTML = "-";
 	updateStatus("Connecting..");
 	var qname = "";
 	if (isJoin) {
