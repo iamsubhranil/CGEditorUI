@@ -141,14 +141,14 @@ function instantDelete() {
 
 function insertAction(change, at) {
 	//console.log(change, at);
-	console.log(
+	/*console.log(
 		"In Insert Action\n",
 		change,
 		state,
 		lastChange,
 		at,
 		insertedChange
-	);
+	);*/
 	if (state == 1) instantDelete();
 	if (at == lastChange + 1) {
 		if (insertedChange.length == 0) start = at;
@@ -177,14 +177,14 @@ function insertAction(change, at) {
 
 function deleteAction(direction, at) {
 	//console.log(change, at);
-	console.log(
+	/*console.log(
 		"In Delete Action\n",
 		deleteCounter,
 		state,
 		lastDeletionDirection,
 		at,
 		direction
-	);
+	);*/
 	if (state == 0) instantInsert();
 
 	if (deleteCounter == 0) {
