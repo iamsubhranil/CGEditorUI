@@ -1,6 +1,7 @@
 const OPERATION_CREATE = "create";
 const OPERATION_SEND = "send";
 const OPERATION_JOIN = "join";
+const OPERATION_GET_MSG = "receive";
 
 const ERR_QUEUE_NAME_NOT_SPECIFIED = 460;
 const ERR_START = ERR_QUEUE_NAME_NOT_SPECIFIED;
@@ -30,7 +31,8 @@ function post_data(
 	var http = new XMLHttpRequest();
 	var url = server;
 	data.operation = operation;
-	data.queue_name = QUEUE_NAME;
+	data.sending_queue_name = SENDING_QUEUE_NAME;
+	data.receiving_queue_name = RECEIVING_QUEUE_NAME;
 	var params = JSON.stringify(data); //JSON.parse(data);
 	http.onreadystatechange = function () {
 		statusHandler(http);
@@ -231,7 +233,8 @@ var lastChange = -1;
 var start = 0;
 var state = 0; // 0 = Insertion	1 = Deletion
 
-var QUEUE_NAME = "";
+var SENDING_QUEUE_NAME = "";
+var RECEIVING_QUEUE_NAME = "";
 var URL = "";
 const QUEUE_NAME_LENGTH = 64;
 // dec2hex :: Integer -> String
@@ -260,10 +263,11 @@ function establishQueue(cb, qname = "", count = 1) {
 	}
 	updateStatus(count > 1 ? "Retrying..\t" : "" + "Generating queue name..");
 
-	QUEUE_NAME = qname;
+	SENDING_QUEUE_NAME = qname;
 	if (qname.length == 0) {
 		// if we don't have a given queue name, generate a new one
-		QUEUE_NAME = generateId(QUEUE_NAME_LENGTH);
+		SENDING_QUEUE_NAME = generateId(QUEUE_NAME_LENGTH);
+		RECEIVING_QUEUE_NAME = generateId(QUEUE_NAME_LENGTH);
 	}
 
 	post_data(
@@ -287,7 +291,7 @@ function establishQueue(cb, qname = "", count = 1) {
 					// otherwise, invoke the callback with server response as error
 					else cb(http.response, null);
 				} else {
-					cb(null, "Okay!");
+					cb(null, http.response);
 				}
 			}
 		}
@@ -309,9 +313,12 @@ function performConnection(isJoin) {
 			updateStatus(err);
 			return;
 		}
+		// ok should contain the receiving queue name from producer
+		RECEIVING_QUEUE_NAME = ok;
 		console.log("[x] Queue established successfully! Reply: '" + ok + "'");
 		updateStatus("Connected");
-		document.getElementById("session_id_value").innerHTML = QUEUE_NAME;
+		document.getElementById("session_id_value").innerHTML =
+			SENDING_QUEUE_NAME;
 		registerKeyListeners();
 	}, qname);
 }
