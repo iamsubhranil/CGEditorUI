@@ -1,7 +1,7 @@
 const OPERATION_CREATE = "create";
 const OPERATION_SEND = "send";
 const OPERATION_JOIN = "join";
-const OPERATION_GET_MSG = "receive";
+const OPERATION_RECEIVE = "receive";
 
 const ERR_QUEUE_NAME_NOT_SPECIFIED = 460;
 const ERR_START = ERR_QUEUE_NAME_NOT_SPECIFIED;
@@ -10,6 +10,7 @@ const ERR_RESERVED_QUEUE_NAME = 462;
 const ERR_QUEUE_IN_USE = 463;
 const ERR_QUEUE_NOT_FOUND = 464;
 const ERR_INVALID_OPERATION = 465;
+const ERR_NO_NEW_OPERATION = 466;
 
 // by default, operation is send, so the status handler
 // handles what would happen if the queue is not
@@ -354,3 +355,34 @@ function registerKeyListeners() {
 		//console.log(results);
 	});
 }
+
+var receive_counter = 0;
+function eventReceiever() {
+	post_data(
+		URL,
+		{ receiveFrom: receive_counter },
+		OPERATION_RECEIVE,
+		function (http) {
+			if (http.status == ERR_QUEUE_NOT_FOUND) {
+				updateStatus(
+					"Invalid session ID! (maybe disconnected due to inactivity)"
+				);
+				document.getElementById("session_id_value").innerHTML = "-";
+			}
+			else if (http.status == ERR_NO_NEW_OPERATION){
+				console.log("[!] Error: No new Operation received!");
+			}
+			else if (http.status == 200){
+				console.log(http.response);
+				var res = JSON.parse(http.response);
+				receive_counter += res.numOfChanges;
+			}
+			else {
+				console.log("[!] Unknown Error: "+ http.response);
+			}
+		}
+	);
+}
+
+const INACTIVE_TIMEOUT_MILLS = 1000 * 10;
+setInterval(eventReceiever, INACTIVE_TIMEOUT_MILLS);
