@@ -368,21 +368,23 @@ function eventReceiever() {
 					"Invalid session ID! (maybe disconnected due to inactivity)"
 				);
 				document.getElementById("session_id_value").innerHTML = "-";
-			}
-			else if (http.status == ERR_NO_NEW_OPERATION){
+			} else if (http.status == ERR_NO_NEW_OPERATION) {
 				console.log("[!] Error: No new Operation received!");
-			}
-			else if (http.status == 200){
-				console.log(http.response);
+			} else if (http.status == 200) {
 				var res = JSON.parse(http.response);
+				console.log(
+					"[+] Received message from Server --> " +
+						res["changesToUpdate"][0]
+				);
+				document.getElementById("fairText").value =
+					res["changesToUpdate"][0];
 				receive_counter += res.numOfChanges;
-			}
-			else {
-				console.log("[!] Unknown Error: "+ http.response);
+			} else {
+				console.log("[!] Unknown Error: " + http.response);
 			}
 		}
 	);
 }
 
-const INACTIVE_TIMEOUT_MILLS = 1000 * 10;
+const INACTIVE_TIMEOUT_MILLS = 1000 * 60;
 setInterval(eventReceiever, INACTIVE_TIMEOUT_MILLS);
