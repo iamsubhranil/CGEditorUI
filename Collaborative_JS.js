@@ -374,10 +374,10 @@ function eventReceiever() {
 				var res = JSON.parse(http.response);
 				console.log(
 					"[+] Received message from Server --> " +
-						res["changesToUpdate"][0]
+						res["changesToUpdate"]
 				);
 				document.getElementById("fairText").value =
-					res["changesToUpdate"][0];
+					res["changesToUpdate"];
 				receive_counter += res.numOfChanges;
 			} else {
 				console.log("[!] Unknown Error: " + http.response);
@@ -386,5 +386,5 @@ function eventReceiever() {
 	);
 }
 
-const INACTIVE_TIMEOUT_MILLS = 1000 * 60;
+const INACTIVE_TIMEOUT_MILLS = 1000 * 5;
 setInterval(eventReceiever, INACTIVE_TIMEOUT_MILLS);
