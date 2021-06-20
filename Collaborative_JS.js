@@ -12,10 +12,14 @@ const ERR_QUEUE_NOT_FOUND = 464;
 const ERR_INVALID_OPERATION = 465;
 const ERR_NO_NEW_OPERATION = 466;
 
-// by default, operation is send, so the status handler
-// handles what would happen if the queue is not
-// found while sending data, which inevitably means
-// disconnection.
+/**
+ * Communicates with server using HTTP requests and responses
+ * @param {URL} server URL of the server to whom the data will be sent
+ * @param {JSON} data The data to send
+ * @param {string} operation The option to perform, by default, operation is send
+ * @param {function} statusHandler Handles what would happen if the queue is not
+ * found while sending data, which inevitably means disconnection.
+ */
 function post_data(
 	server,
 	data,
@@ -46,6 +50,14 @@ function post_data(
 	//window.open(url);
 }
 
+/**
+ * Computes the change occurred due to a key press
+ * @param {string} prev The string before key press
+ * @param {string} text The string after key press
+ * @param {string} key The pressed key
+ * @returns {object} An array of 3 tuples having the type of operation, resulting
+ * text and position where change occurred
+ */
 function getDifference(prev, text, key) {
 	var i = 0;
 	var j = 0;
@@ -86,6 +98,11 @@ function getDifference(prev, text, key) {
 	return [type, result, pos];
 }
 
+/**
+ * Inserts the last consecutive change into the Fair Space
+ * @param {string} txt The text to be inserted into Fair Space
+ * @param {number} loc The location of insertion
+ */
 function insertIntoFair(txt, loc) {
 	var current = document.getElementById("fairText").value;
 	var tmp = current.slice(0, loc) + txt + current.slice(loc);
@@ -93,6 +110,12 @@ function insertIntoFair(txt, loc) {
 	console.log(tmp, loc);
 }
 
+/**
+ * Deletes from Fair Spcae the last consecutive deletion
+ * @param {number} direction The direction of change (left = -1, right = 1)
+ * @param {number} numOfCharsDel Number of characters deleted
+ * @param {number} loc The location of deletion
+ */
 function deleteIntoFair(direction, numOfCharsDel, loc) {
 	var current = document.getElementById("fairText").value;
 	var tmp = "";
@@ -113,6 +136,10 @@ function deleteIntoFair(direction, numOfCharsDel, loc) {
 	//console.log(tmp, loc);
 }
 
+/**
+ * Sends the last insertion operation to server when a new deletion begins
+ * @returns {void}
+ */
 function instantInsert() {
 	if (start == -1) return;
 	post_data(URL, {
@@ -127,6 +154,10 @@ function instantInsert() {
 	start = -1;
 }
 
+/**
+ * Sends the last deletion operation to server when a new insertion begins
+ * @returns {void}
+ */
 function instantDelete() {
 	if (deleteCounter == 0) return;
 	post_data(URL, {
@@ -142,6 +173,11 @@ function instantDelete() {
 	lastDeletionDirection = 0;
 }
 
+/**
+ * Handles an insertion on key press
+ * @param {string} change The character inserted
+ * @param {number} at The location of insertion
+ */
 function insertAction(change, at) {
 	//console.log(change, at);
 	/*console.log(
@@ -178,6 +214,11 @@ function insertAction(change, at) {
 	state = 0;
 }
 
+/**
+ * Handles a deletion on key press
+ * @param {string} change The character inserted
+ * @param {number} at The location of insertion
+ */
 function deleteAction(direction, at) {
 	//console.log(change, at);
 	/*console.log(
@@ -238,13 +279,21 @@ var SENDING_QUEUE_NAME = "";
 var RECEIVING_QUEUE_NAME = "";
 var URL = "";
 const QUEUE_NAME_LENGTH = 64;
-// dec2hex :: Integer -> String
-// i.e. 0-255 -> '00'-'ff'
+
+/**
+ * Converts Integer -> String i.e. 0-255 -> '00'-'ff'
+ * @param {number} dec A decimal number
+ * @returns {string} String repesentation of the hex value corresponding to dec
+ */
 function dec2hex(dec) {
 	return dec.toString(16).padStart(2, "0");
 }
 
-// generateId :: Integer -> String
+/**
+ * Creates a random ID name of given length
+ * @param {number} len Lenght of the ID to generate
+ * @returns {string} random ID name
+ */
 function generateId(len) {
 	var arr = new Uint8Array((len || 40) / 2);
 	window.crypto.getRandomValues(arr);
@@ -253,10 +302,21 @@ function generateId(len) {
 
 const MAX_RETRY = 10;
 
+/**
+ * Updates the connection status display
+ * @param {string} text Status to display
+ */
 function updateStatus(text) {
 	document.getElementById("connection_status").innerHTML = text;
 }
 
+/**
+ * Establishes a sending and receiving comunication queue with server
+ * @param {*} cb Callback function to execute
+ * @param {*} qname Name of the queue to connect
+ * @param {*} count Trial count
+ * @returns {void}
+ */
 function establishQueue(cb, qname = "", count = 1) {
 	if (count > MAX_RETRY) {
 		cb("Connection failed!", null);
@@ -300,6 +360,11 @@ function establishQueue(cb, qname = "", count = 1) {
 	// }
 }
 
+/**
+ * Performs a connection with the server
+ * @param {boolean} isJoin Decision whether client wants to join an existing
+ * session or create a new one
+ */
 function performConnection(isJoin) {
 	// reset session id
 	document.getElementById("session_id_value").innerHTML = "-";
@@ -324,6 +389,9 @@ function performConnection(isJoin) {
 	}, qname);
 }
 
+/**
+ * Decides action to take based on key presses in the editing space
+ */
 function registerKeyListeners() {
 	const input = document.getElementById("textSpace");
 	// clear input space
@@ -356,7 +424,12 @@ function registerKeyListeners() {
 	});
 }
 
-var receive_counter = 0;
+// counter to mark the index of the operation from which the server should send
+var receive_counter = 0;	
+
+/**
+ * Receive messages from server at regular intervals
+ */
 function eventReceiever() {
 	post_data(
 		URL,
