@@ -99,6 +99,68 @@ function getDifference(prev, text, key) {
 }
 
 /**
+ * Creates the proper insertion operation format for a given insertion
+ * @param {string} txt Text inserted
+ * @param {number} loc Starting position of insertion
+ */
+function generateInsertion(txt, loc) {
+	var max_cursor_pos = document.getElementById("fairText").value.length;
+	if (loc > 0) {
+		operation.push([0, 0, loc - 1]);
+	}
+	operation.push([1, txt]);
+	if (max_cursor_pos > 0 && loc < max_cursor_pos) {
+		operation.push([0, loc, max_cursor_pos]);
+	}
+	console.log(operation);
+}
+
+/**
+ * Creates the proper deletion operation format for a given deletion
+ * @param {number} direction The direction of change (left = -1, right = 1)
+ * @param {number} numOfCharsDel Number of characters deleted
+ * @param {number} loc The location of deletion
+ */
+function generateDeletion(direction, numOfCharsDel, loc) {
+	var deleted = false;
+	for (let i = 0; i < operation.length && !deleted; i++) {
+		if (operation[i][0] == 0) {
+			if (loc >= operation[i][1] && loc <= operation[i][2]) {
+				switch (direction) {
+					case -1:
+						if (loc < operation[i][2]) {
+							operation.splice(i + 1, 0, [
+								0,
+								loc,
+								operation[i][2],
+							]);
+						}
+						operation[i][2] = loc - numOfCharsDel;
+						deleted = true;
+						break;
+
+					case 1:
+						if (loc + numOfCharsDel < operation[i][2]) {
+							operation.splice(i + 1, 0, [
+								0,
+								loc + numOfCharsDel,
+								operation[i][2],
+							]);
+						}
+						operation[i][2] = loc - 1;
+						deleted = true;
+						break;
+
+					default:
+						return;
+				}
+			}
+		}
+	}
+	console.log(operation);
+}
+
+/**
  * Inserts the last consecutive change into the Fair Space
  * @param {string} txt The text to be inserted into Fair Space
  * @param {number} loc The location of insertion
@@ -111,7 +173,7 @@ function insertIntoFair(txt, loc) {
 }
 
 /**
- * Deletes from Fair Spcae the last consecutive deletion
+ * Deletes from Fair Space the last consecutive deletion
  * @param {number} direction The direction of change (left = -1, right = 1)
  * @param {number} numOfCharsDel Number of characters deleted
  * @param {number} loc The location of deletion
@@ -142,6 +204,7 @@ function deleteIntoFair(direction, numOfCharsDel, loc) {
  */
 function instantInsert() {
 	if (start == -1) return;
+	generateInsertion(insertedChange, start);
 	post_data(URL, {
 		changeType: "insertion",
 		insertedText: insertedChange,
@@ -160,6 +223,7 @@ function instantInsert() {
  */
 function instantDelete() {
 	if (deleteCounter == 0) return;
+	generateDeletion(lastDeletionDirection, deleteCounter, start);
 	post_data(URL, {
 		changeType: "deletion",
 		deletionDirection: lastDeletionDirection,
@@ -196,6 +260,7 @@ function insertAction(change, at) {
 		lastChange = at;
 	} else {
 		if (start != -1) {
+			generateInsertion(insertedChange, start);
 			post_data(URL, {
 				changeType: "insertion",
 				insertedText: insertedChange,
@@ -248,6 +313,7 @@ function deleteAction(direction, at) {
 		lastDeletionDirection = direction;
 	} else {
 		if (start != 1) {
+			generateDeletion(lastDeletionDirection, deleteCounter, start);
 			post_data(URL, {
 				changeType: "deletion",
 				deletionDirection: lastDeletionDirection,
@@ -274,6 +340,7 @@ var lastDeletionDirection = 0;
 var lastChange = -1;
 var start = 0;
 var state = 0; // 0 = Insertion	1 = Deletion
+var operation = []; // Stores the list of suboperations
 
 var SENDING_QUEUE_NAME = "";
 var RECEIVING_QUEUE_NAME = "";
@@ -425,7 +492,7 @@ function registerKeyListeners() {
 }
 
 // counter to mark the index of the operation from which the server should send
-var receive_counter = 0;	
+var receive_counter = 0;
 
 /**
  * Receive messages from server at regular intervals
@@ -459,5 +526,5 @@ function eventReceiever() {
 	);
 }
 
-const INACTIVE_TIMEOUT_MILLS = 1000 * 5;
+const INACTIVE_TIMEOUT_MILLS = 1000 * 60 * 1;
 setInterval(eventReceiever, INACTIVE_TIMEOUT_MILLS);
