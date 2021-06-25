@@ -111,7 +111,7 @@ function generateInsertion(txt, loc) {
 				var bak = operation[i][2];
 				operation[i][2] = loc;
 				operation.splice(i + 1, 0, [1, txt]);
-				operation.splice(i + 2, 0, [0, loc + 1, bak]);
+				operation.splice(i + 2, 0, [0, loc, bak]);
 				inserted = true;
 				break;
 			}
@@ -172,20 +172,20 @@ function generateDeletion(direction, numOfCharsDel, loc) {
  * Inserts the last consecutive change into the Fair Space
  * @param {string} txt The text to be inserted into Fair Space
  * @param {number} loc The location of insertion
- */
+ 
 function insertIntoFair(txt, loc) {
 	var current = document.getElementById("fairText").value;
 	var tmp = current.slice(0, loc) + txt + current.slice(loc);
 	document.getElementById("fairText").value = tmp;
 	console.log(tmp, loc);
-}
+}*/
 
 /**
  * Deletes from Fair Space the last consecutive deletion
  * @param {number} direction The direction of change (left = -1, right = 1)
  * @param {number} numOfCharsDel Number of characters deleted
  * @param {number} loc The location of deletion
- */
+ 
 function deleteIntoFair(direction, numOfCharsDel, loc) {
 	var current = document.getElementById("fairText").value;
 	var tmp = "";
@@ -204,7 +204,7 @@ function deleteIntoFair(direction, numOfCharsDel, loc) {
 	}
 	document.getElementById("fairText").value = tmp;
 	//console.log(tmp, loc);
-}
+}*/
 
 /**
  * Sends the last insertion operation to server when a new deletion begins
@@ -214,7 +214,7 @@ function instantInsert() {
 	if (start == -1) return;
 	generateInsertion(insertedChange, start);
 
-	insertIntoFair(insertedChange, start);
+	//insertIntoFair(insertedChange, start);
 	insertedChange = "";
 	prev = "";
 	lastChange = -1;
@@ -229,7 +229,7 @@ function instantDelete() {
 	if (deleteCounter == 0) return;
 	generateDeletion(lastDeletionDirection, deleteCounter, start);
 
-	deleteIntoFair(lastDeletionDirection, deleteCounter, start);
+	//deleteIntoFair(lastDeletionDirection, deleteCounter, start);
 	deleteCounter = 0;
 	lastChange = -1;
 	start = -1;
@@ -261,7 +261,7 @@ function insertAction(change, at) {
 		if (start != -1) {
 			generateInsertion(insertedChange, start);
 		}
-		insertIntoFair(insertedChange, start);
+		//insertIntoFair(insertedChange, start);
 		insertedChange = change;
 		prev = insertedChange;
 		lastChange = at;
@@ -309,7 +309,7 @@ function deleteAction(direction, at) {
 		if (start != 1) {
 			generateDeletion(lastDeletionDirection, deleteCounter, start);
 		}
-		deleteIntoFair(lastDeletionDirection, deleteCounter, start);
+		//deleteIntoFair(lastDeletionDirection, deleteCounter, start);
 		deleteCounter = 1;
 		lastChange = at;
 		start = at;
@@ -514,11 +514,33 @@ function eventReceiever() {
 	);
 }
 
+/**
+ * Applies the operation list on fair space text
+ */
+function apply_transformation() {
+	if (RECEIVING_QUEUE_NAME == "") return;
+	if (operation.length == 1) return;
+	var finaltext = "";
+	var text = document.getElementById("fairText").value;
+	//var finaltext = document.getElementById("fairText").value;
+	for (var i = 0; i < operation.length; i++) {
+		op = operation[i];
+		if (op[0] == 1) {
+			finaltext += op[1];
+		} else {
+			finaltext += text.slice(op[1], op[2]);
+		}
+	}
+	//return finaltext;
+	document.getElementById("fairText").value = finaltext;
+}
+
 function flushOperations() {
 	if (RECEIVING_QUEUE_NAME == "") return;
 	if (operation.length == 1) return;
 	console.log(operation);
-	post_data(URL, { operation_list: operation });
+	//post_data(URL, { operation_list: operation });
+	apply_transformation();
 	operation = [[0, 0, document.getElementById("textSpace").value.length - 1]];
 }
 
