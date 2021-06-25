@@ -104,13 +104,21 @@ function getDifference(prev, text, key) {
  * @param {number} loc Starting position of insertion
  */
 function generateInsertion(txt, loc) {
-	var max_cursor_pos = document.getElementById("fairText").value.length;
-	if (loc > 0) {
-		operation.push([0, 0, loc - 1]);
+	var inserted = false;
+	for (let i = 0; i < operation.length; i++) {
+		if (operation[i][0] == 0) {
+			if (loc >= operation[i][1] && loc <= operation[i][2]) {
+				var bak = operation[i][2];
+				operation[i][2] = loc;
+				operation.splice(i + 1, 0, [1, txt]);
+				operation.splice(i + 2, 0, [0, loc + 1, bak]);
+				inserted = true;
+				break;
+			}
+		}
 	}
-	operation.push([1, txt]);
-	if (max_cursor_pos > 0 && loc < max_cursor_pos) {
-		operation.push([0, loc, max_cursor_pos]);
+	if (!inserted) {
+		operation.push([1, txt]);
 	}
 	console.log(operation);
 }
@@ -205,11 +213,7 @@ function deleteIntoFair(direction, numOfCharsDel, loc) {
 function instantInsert() {
 	if (start == -1) return;
 	generateInsertion(insertedChange, start);
-	post_data(URL, {
-		changeType: "insertion",
-		insertedText: insertedChange,
-		startLoc: start,
-	});
+
 	insertIntoFair(insertedChange, start);
 	insertedChange = "";
 	prev = "";
@@ -224,12 +228,7 @@ function instantInsert() {
 function instantDelete() {
 	if (deleteCounter == 0) return;
 	generateDeletion(lastDeletionDirection, deleteCounter, start);
-	post_data(URL, {
-		changeType: "deletion",
-		deletionDirection: lastDeletionDirection,
-		startLoc: start,
-		NumberOfCharatersDeleted: deleteCounter,
-	});
+
 	deleteIntoFair(lastDeletionDirection, deleteCounter, start);
 	deleteCounter = 0;
 	lastChange = -1;
@@ -261,11 +260,6 @@ function insertAction(change, at) {
 	} else {
 		if (start != -1) {
 			generateInsertion(insertedChange, start);
-			post_data(URL, {
-				changeType: "insertion",
-				insertedText: insertedChange,
-				startLoc: start,
-			});
 		}
 		insertIntoFair(insertedChange, start);
 		insertedChange = change;
@@ -314,12 +308,6 @@ function deleteAction(direction, at) {
 	} else {
 		if (start != 1) {
 			generateDeletion(lastDeletionDirection, deleteCounter, start);
-			post_data(URL, {
-				changeType: "deletion",
-				deletionDirection: lastDeletionDirection,
-				startLoc: start,
-				NumberOfCharatersDeleted: deleteCounter,
-			});
 		}
 		deleteIntoFair(lastDeletionDirection, deleteCounter, start);
 		deleteCounter = 1;
@@ -526,5 +514,15 @@ function eventReceiever() {
 	);
 }
 
+function flushOperations() {
+	if (RECEIVING_QUEUE_NAME == "") return;
+	if (operation.length == 1) return;
+	console.log(operation);
+	post_data(URL, { operation_list: operation });
+	operation = [[0, 0, document.getElementById("textSpace").value.length - 1]];
+}
+
 const INACTIVE_TIMEOUT_MILLS = 1000 * 60 * 1;
+const FLUSH_TIMEOUT_MILLS = 1000 * 1;
 setInterval(eventReceiever, INACTIVE_TIMEOUT_MILLS);
+setInterval(flushOperations, FLUSH_TIMEOUT_MILLS);

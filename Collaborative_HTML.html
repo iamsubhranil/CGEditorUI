@@ -1,33 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 	<title>Editor</title>
 </head>
 <body>
     <label> ProducerUrl: </label>
-    <input id="producer_url" value="http://localhost:8080">
-    <br>
-	<input id="jointext">
+    <input id="producer_url" value="http://localhost:8080"/>
+    <br/>
+	<input id="jointext"/>
 	<button id="joinbutton" onclick="performConnection(true)"> Join </button>
 	<button id="createbutton" onclick="performConnection(false)"> Create </button> 
-	<br>
+	<br/>
 	<label id="connection_label"> Connection Status: </label>
 	<label id="connection_status"> Disconnected </label>
-	<br>
+	<br/>
 	<label id="session_id_label"> Session ID: </label>
 	<label id="session_id_value"> - </label>
-	<br>
+	<br/>
 	<div>
-		Rough Space <br>
+		Rough Space <br/>
 		<textarea id="textSpace"></textarea>
 	</div>
 	<div>
-		<br>Fair Space <br>
+		<br/>Fair Space <br/>
 		<textarea id="fairText"></textarea>
 	</div>
+	<script src="Collaborative_JS.js"></script>
 </body>
-<script src="Collaborative_JS.js"></script>
 </html>
