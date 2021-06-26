@@ -499,13 +499,13 @@ function eventReceiever() {
 			} else if (http.status == ERR_NO_NEW_OPERATION) {
 				console.log("[!] Error: No new Operation received!");
 			} else if (http.status == 200) {
+				console.log(http.response);
 				var res = JSON.parse(http.response);
 				console.log(
 					"[+] Received message from Server --> " +
 						res["changesToUpdate"]
 				);
-				document.getElementById("fairText").value =
-					res["changesToUpdate"];
+				apply_transformation(res["changesToUpdate"]);
 				receive_counter += res.numOfChanges;
 			} else {
 				console.log("[!] Unknown Error: " + http.response);
@@ -517,14 +517,12 @@ function eventReceiever() {
 /**
  * Applies the operation list on fair space text
  */
-function apply_transformation() {
-	if (RECEIVING_QUEUE_NAME == "") return;
-	if (operation.length == 1) return;
+function apply_transformation(operations) {
 	var finaltext = "";
 	var text = document.getElementById("fairText").value;
 	//var finaltext = document.getElementById("fairText").value;
-	for (var i = 0; i < operation.length; i++) {
-		op = operation[i];
+	for (var i = 0; i < operations.length; i++) {
+		op = operations[i];
 		if (op[0] == 1) {
 			finaltext += op[1];
 		} else {
@@ -539,12 +537,12 @@ function flushOperations() {
 	if (RECEIVING_QUEUE_NAME == "") return;
 	if (operation.length == 1) return;
 	console.log(operation);
-	//post_data(URL, { operation_list: operation });
-	apply_transformation();
+	post_data(URL, { operation_list: operation });
+	// apply_transformation();
 	operation = [[0, 0, document.getElementById("textSpace").value.length - 1]];
 }
 
-const INACTIVE_TIMEOUT_MILLS = 1000 * 60 * 1;
+const INACTIVE_TIMEOUT_MILLS = 1000 * 10;
 const FLUSH_TIMEOUT_MILLS = 1000 * 1;
 setInterval(eventReceiever, INACTIVE_TIMEOUT_MILLS);
 setInterval(flushOperations, FLUSH_TIMEOUT_MILLS);
