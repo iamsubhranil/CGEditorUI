@@ -499,14 +499,24 @@ function eventReceiever() {
 			} else if (http.status == ERR_NO_NEW_OPERATION) {
 				console.log("[!] Error: No new Operation received!");
 			} else if (http.status == 200) {
-				console.log(http.response);
-				var res = JSON.parse(http.response);
-				console.log(
-					"[+] Received message from Server --> " +
-						JSON.stringify(res.changesToUpdate[0])
-				);
-				apply_transformation(JSON.stringify(res.changesToUpdate[0]));
-				receive_counter += res.numOfChanges;
+				try {
+					var res = JSON.parse(http.response);
+					console.log("[+] Received message from Server --> ");
+					console.log(res);
+					if (res.sentFrom < receive_counter) {
+						console.log("[!] Info: Ignoring old changes!");
+					} else {
+						apply_transformation(res.changesToUpdate);
+						receive_counter += res.numOfChanges;
+					}
+				} catch (err) {
+					console.log(
+						"Exception thrown: " +
+							err.message +
+							"\nResponse: " +
+							http.response
+					);
+				}
 			} else {
 				console.log("[!] Unknown Error: " + http.response);
 			}
@@ -520,10 +530,10 @@ function eventReceiever() {
 function apply_transformation(operations) {
 	var finaltext = "";
 	var text = document.getElementById("fairText").value;
-	var operation = JSON.parse(operations);
-	console.log("Trying to apply: " + operation.changesToUpdate);
+	console.log("Trying to apply: ");
+	console.log(operations);
 	//var finaltext = document.getElementById("fairText").value;
-	for (var i = 0; i < operation.length; i++) {
+	for (var i = 0; i < operations.length; i++) {
 		op = operations[i];
 		if (op[0] == 1) {
 			finaltext += op[1];
