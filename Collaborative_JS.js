@@ -109,7 +109,7 @@ function generateInsertion(txt, loc) {
 		if (operation[i][0] == 0) {
 			if (loc >= operation[i][1] && loc <= operation[i][2]) {
 				var bak = operation[i][2];
-				operation[i][2] = loc;
+				operation[i][2] = loc - 1;
 				operation.splice(i + 1, 0, [1, txt]);
 				operation.splice(i + 2, 0, [0, loc, bak]);
 				inserted = true;
@@ -507,7 +507,7 @@ function eventReceiever() {
 						console.log("[!] Info: Ignoring old changes!");
 					} else {
 						apply_transformation(res.changesToUpdate);
-						receive_counter += res.numOfChanges;
+						receive_counter += res.changesToUpdate.length;
 					}
 				} catch (err) {
 					console.log(
@@ -538,11 +538,12 @@ function apply_transformation(operations) {
 		if (op[0] == 1) {
 			finaltext += op[1];
 		} else {
-			finaltext += text.slice(op[1], op[2]);
+			finaltext += text.slice(op[1], op[2] + 1);
 		}
 	}
 	//return finaltext;
 	document.getElementById("fairText").value = finaltext;
+	//document.getElementById("textSpace").value = finaltext;
 }
 
 function flushOperations() {
@@ -551,7 +552,7 @@ function flushOperations() {
 	console.log(operation);
 	post_data(URL, { operation_list: operation });
 	// apply_transformation();
-	operation = [[0, 0, document.getElementById("textSpace").value.length - 1]];
+	operation = [[0, 0, document.getElementById("textSpace").value.length]];
 }
 
 const INACTIVE_TIMEOUT_MILLS = 1000 * 10;
