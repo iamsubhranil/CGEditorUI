@@ -503,9 +503,9 @@ function eventReceiever() {
 				var res = JSON.parse(http.response);
 				console.log(
 					"[+] Received message from Server --> " +
-						res["changesToUpdate"]
+						JSON.stringify(res.changesToUpdate[0])
 				);
-				apply_transformation(res["changesToUpdate"]);
+				apply_transformation(JSON.stringify(res.changesToUpdate[0]));
 				receive_counter += res.numOfChanges;
 			} else {
 				console.log("[!] Unknown Error: " + http.response);
@@ -520,8 +520,10 @@ function eventReceiever() {
 function apply_transformation(operations) {
 	var finaltext = "";
 	var text = document.getElementById("fairText").value;
+	var operation = JSON.parse(operations);
+	console.log("Trying to apply: " + operation.changesToUpdate);
 	//var finaltext = document.getElementById("fairText").value;
-	for (var i = 0; i < operations.length; i++) {
+	for (var i = 0; i < operation.length; i++) {
 		op = operations[i];
 		if (op[0] == 1) {
 			finaltext += op[1];
