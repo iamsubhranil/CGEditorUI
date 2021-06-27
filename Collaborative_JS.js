@@ -104,7 +104,13 @@ function getDifference(prev, text, key) {
  * @param {number} loc Starting position of insertion
  */
 function generateInsertion(txt, loc) {
+	console.log("loc: " + loc);
 	var inserted = false;
+	if (operation.length == 1 && operation[0][0] == 0 && operation[0][2] == 0) {
+		operation.push([1, txt]);
+		console.log(operation);
+		return;
+	}
 	for (let i = 0; i < operation.length; i++) {
 		if (operation[i][0] == 0) {
 			if (loc >= operation[i][1] && loc <= operation[i][2]) {
@@ -486,6 +492,7 @@ var receive_counter = 0;
  * Receive messages from server at regular intervals
  */
 function eventReceiever() {
+	if (RECEIVING_QUEUE_NAME == "") return;
 	post_data(
 		URL,
 		{ receiveFrom: receive_counter },
@@ -534,6 +541,13 @@ function apply_transformation(operations) {
 	console.log(operations);
 	//var finaltext = document.getElementById("fairText").value;
 	for (var i = 0; i < operations.length; i++) {
+		// we sent multiple flushes, since each flush resets our
+		// operation array, a new range starting with 0 denotes
+		// it is part of a later flush.
+		if (i > 0 && operations[i][0] == 0 && operations[i][1] == 0) {
+			text = finaltext;
+			finaltext = "";
+		}
 		op = operations[i];
 		if (op[0] == 1) {
 			finaltext += op[1];
@@ -555,7 +569,7 @@ function flushOperations() {
 	operation = [[0, 0, document.getElementById("textSpace").value.length]];
 }
 
-const INACTIVE_TIMEOUT_MILLS = 1000 * 10;
+const INACTIVE_TIMEOUT_MILLS = 1000 * 1;
 const FLUSH_TIMEOUT_MILLS = 1000 * 1;
 setInterval(eventReceiever, INACTIVE_TIMEOUT_MILLS);
 setInterval(flushOperations, FLUSH_TIMEOUT_MILLS);
