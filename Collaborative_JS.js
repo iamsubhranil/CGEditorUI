@@ -43,7 +43,7 @@ function post_data(
 		statusHandler(http);
 	};
 	http.open("POST", url, true);
-	console.log(data);
+	//console.log(data);
 	//Send the proper header information along with the request
 	http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	http.send(params);
@@ -108,16 +108,20 @@ function generateInsertion(txt, loc) {
 	var inserted = false;
 	if (operation.length == 1 && operation[0][0] == 0 && operation[0][2] == 0) {
 		operation.push([1, txt]);
-		console.log(operation);
+		//console.log(operation);
 		return;
 	}
 	for (let i = 0; i < operation.length; i++) {
 		if (operation[i][0] == 0) {
 			if (loc >= operation[i][1] && loc <= operation[i][2]) {
-				var bak = operation[i][2];
+				var bak =
+					Math.min(
+						operation[i][2],
+						document.getElementById("fairText").value.length
+					) - 1;
 				operation[i][2] = loc - 1;
 				operation.splice(i + 1, 0, [1, txt]);
-				operation.splice(i + 2, 0, [0, loc, bak]);
+				if (loc <= bak) operation.splice(i + 2, 0, [0, loc, bak]);
 				inserted = true;
 				break;
 			}
@@ -126,7 +130,7 @@ function generateInsertion(txt, loc) {
 	if (!inserted) {
 		operation.push([1, txt]);
 	}
-	console.log(operation);
+	//console.log(operation);
 }
 
 /**
@@ -142,12 +146,12 @@ function generateDeletion(direction, numOfCharsDel, loc) {
 			if (loc >= operation[i][1] && loc <= operation[i][2]) {
 				switch (direction) {
 					case -1:
+						var bak = Math.max(
+							operation[i][2],
+							document.getElementById("fairText").value.length
+						) - 1;
 						if (loc < operation[i][2]) {
-							operation.splice(i + 1, 0, [
-								0,
-								loc,
-								operation[i][2],
-							]);
+							operation.splice(i + 1, 0, [0, loc + 1, bak]);
 						}
 						operation[i][2] = loc - numOfCharsDel;
 						deleted = true;
@@ -171,7 +175,7 @@ function generateDeletion(direction, numOfCharsDel, loc) {
 			}
 		}
 	}
-	console.log(operation);
+	//console.log(operation);
 }
 
 /**
@@ -504,14 +508,14 @@ function eventReceiever() {
 				);
 				document.getElementById("session_id_value").innerHTML = "-";
 			} else if (http.status == ERR_NO_NEW_OPERATION) {
-				console.log("[!] Error: No new Operation received!");
+				//console.log("[!] Error: No new Operation received!");
 			} else if (http.status == 200) {
 				try {
 					var res = JSON.parse(http.response);
-					console.log("[+] Received message from Server --> ");
-					console.log(res);
+					//console.log("[+] Received message from Server --> ");
+					//console.log(res);
 					if (res.sentFrom < receive_counter) {
-						console.log("[!] Info: Ignoring old changes!");
+						//console.log("[!] Info: Ignoring old changes!");
 					} else {
 						apply_transformation(res.changesToUpdate);
 						receive_counter += res.changesToUpdate.length;
@@ -525,7 +529,7 @@ function eventReceiever() {
 					);
 				}
 			} else {
-				console.log("[!] Unknown Error: " + http.response);
+				//console.log("[!] Unknown Error: " + http.response);
 			}
 		}
 	);
@@ -547,7 +551,7 @@ function apply_transformation(operations) {
 		if (i > 0 && operations[i][0] == 0 && operations[i][1] == 0) {
 			text = finaltext;
 			finaltext = "";
-		}
+		} //Insertion at beginning was wrongly handled by this block
 		op = operations[i];
 		if (op[0] == 1) {
 			finaltext += op[1];
@@ -563,7 +567,7 @@ function apply_transformation(operations) {
 function flushOperations() {
 	if (RECEIVING_QUEUE_NAME == "") return;
 	if (operation.length == 1) return;
-	console.log(operation);
+	//console.log(operation);
 	post_data(URL, { operation_list: operation });
 	// apply_transformation();
 	operation = [[0, 0, document.getElementById("textSpace").value.length]];
