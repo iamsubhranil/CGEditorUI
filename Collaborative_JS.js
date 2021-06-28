@@ -561,7 +561,15 @@ function apply_transformation(operations) {
 	}
 	//return finaltext;
 	document.getElementById("fairText").value = finaltext;
-	//document.getElementById("textSpace").value = finaltext;
+	document.getElementById("textSpace").value = finaltext;
+	//reset all the variables
+	prev = finaltext;
+	insertedChange = "";
+	deleteCounter = 0;
+	lastDeletionDirection = 0;
+	lastChange = finaltext.length;
+	start = 0;
+	state = 0;
 }
 
 function flushOperations() {
