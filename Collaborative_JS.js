@@ -50,295 +50,86 @@ function post_data(
 	//window.open(url);
 }
 
-/**
- * Computes the change occurred due to a key press
- * @param {string} prev The string before key press
- * @param {string} text The string after key press
- * @param {string} key The pressed key
- * @returns {object} An array of 3 tuples having the type of operation, resulting
- * text and position where change occurred
- */
-function getDifference(prev, text, key) {
-	var i = 0;
-	var j = 0;
-	var result = "";
-	var type = -1;
-	//var locloc
-	var pos = -5;
-	if (prev.length < text.length) {
-		// insertion
-		while (j < text.length) {
-			if (prev[i] != text[j] || i == prev.length) {
-				result += text[j];
-				pos = j;
-			} else i++;
-			j++;
-		}
-		type = 0; // type = 0 for insertion
-	} else if (prev.length > text.length) {
-		// deletion
-		//console.log(key);
-		if (key === "Backspace") {
-			//|| key === "Delete") {
-			console.log("In Backspace");
-			type = -1; // type = -1 for backspace
-		}
-		if (key === "Delete") {
-			console.log("In Delete");
-			type = 1; // type = 1 for delete
-		}
-		while (i < prev.length) {
-			if (prev[i] != text[j] || j == text.length) {
-				result += prev[i];
-				pos = i;
-			} else j++;
-			i++;
-		}
-	}
-	return [type, result, pos];
-}
+function levenshteinDistance(from, to) {
+	var matrix = new Array((from.length + 1) * (to.length + 1));
+	const width = to.length + 1;
+	const height = from.length + 1;
+	matrix[0] = 0;
 
-/**
- * Creates the proper insertion operation format for a given insertion
- * @param {string} txt Text inserted
- * @param {number} loc Starting position of insertion
- */
-function generateInsertion(txt, loc) {
-	console.log("loc: " + loc);
-	var inserted = false;
-	if (operation.length == 1 && operation[0][0] == 0 && operation[0][2] == 0) {
-		operation.push([1, txt]);
-		//console.log(operation);
-		return;
-	}
-	for (let i = 0; i < operation.length; i++) {
-		if (operation[i][0] == 0) {
-			if (loc >= operation[i][1] && loc <= operation[i][2]) {
-				var bak =
+	for (var i = 1; i < width; i++) matrix[i] = i;
+	for (var i = 1; i < height; i++) matrix[i * width] = i;
+
+	for (var i = 1; i < height; i++) {
+		for (var j = 1; j < width; j++) {
+			if (from[i - 1] == to[j - 1]) {
+				matrix[i * width + j] = matrix[(i - 1) * width + j - 1];
+			} else {
+				matrix[i * width + j] =
 					Math.min(
-						operation[i][2],
-						document.getElementById("fairText").value.length
-					) - 1;
-				operation[i][2] = loc - 1;
-				operation.splice(i + 1, 0, [1, txt]);
-				if (loc <= bak) operation.splice(i + 2, 0, [0, loc, bak]);
-				inserted = true;
-				break;
+						matrix[i * width + (j - 1)],
+						matrix[(i - 1) * width + j],
+						matrix[(i - 1) * width + j - 1]
+					) + 1;
 			}
 		}
 	}
-	if (!inserted) {
-		operation.push([1, txt]);
-	}
-	//console.log(operation);
+	return matrix;
 }
 
-/**
- * Creates the proper deletion operation format for a given deletion
- * @param {number} direction The direction of change (left = -1, right = 1)
- * @param {number} numOfCharsDel Number of characters deleted
- * @param {number} loc The location of deletion
- */
-function generateDeletion(direction, numOfCharsDel, loc) {
-	var deleted = false;
-	for (let i = 0; i < operation.length && !deleted; i++) {
-		if (operation[i][0] == 0) {
-			if (loc >= operation[i][1] && loc <= operation[i][2]) {
-				switch (direction) {
-					case -1:
-						var bak = Math.max(
-							operation[i][2],
-							document.getElementById("fairText").value.length
-						) - 1;
-						if (loc < operation[i][2]) {
-							operation.splice(i + 1, 0, [0, loc + 1, bak]);
-						}
-						operation[i][2] = loc - numOfCharsDel;
-						deleted = true;
-						break;
-
-					case 1:
-						if (loc + numOfCharsDel < operation[i][2]) {
-							operation.splice(i + 1, 0, [
-								0,
-								loc + numOfCharsDel,
-								operation[i][2],
-							]);
-						}
-						operation[i][2] = loc - 1;
-						deleted = true;
-						break;
-
-					default:
-						return;
-				}
+function levenshteinOperation(distance, from, to) {
+	var operations = [];
+	var lastCopy = null;
+	var lastInsert = "";
+	const width = to.length + 1;
+	var currentWidth = to.length;
+	var currentHeight = from.length;
+	while (currentHeight > 0 || currentWidth > 0) {
+		if (from[currentHeight - 1] === to[currentWidth - 1]) {
+			if (lastInsert !== "") {
+				operations.splice(0, 0, [1, lastInsert]);
+				lastInsert = "";
+			}
+			if (lastCopy == null) {
+				lastCopy = [0, currentHeight - 1, currentHeight];
+			} else {
+				lastCopy[1] = currentHeight - 1;
+			}
+			currentHeight--;
+			currentWidth--;
+		} else {
+			if (lastCopy != null) {
+				operations.splice(0, 0, lastCopy);
+				lastCopy = null;
+			}
+			var present = distance[currentHeight * width + currentWidth] - 1;
+			var left = distance[currentHeight * width + currentWidth - 1];
+			// an up arrow denotes a remove operation
+			// so we don't really need to do anything in that case
+			var up = distance[(currentHeight - 1) * width + currentWidth];
+			var corner =
+				distance[(currentHeight - 1) * width + currentWidth - 1];
+			if (present == left || present == corner) {
+				lastInsert = to[currentWidth - 1] + lastInsert;
+			}
+			if (present == left) {
+				currentWidth--;
+			} else if (present == up) {
+				currentHeight--;
+			} else {
+				currentHeight--;
+				currentWidth--;
 			}
 		}
 	}
-	//console.log(operation);
-}
-
-/**
- * Inserts the last consecutive change into the Fair Space
- * @param {string} txt The text to be inserted into Fair Space
- * @param {number} loc The location of insertion
- 
-function insertIntoFair(txt, loc) {
-	var current = document.getElementById("fairText").value;
-	var tmp = current.slice(0, loc) + txt + current.slice(loc);
-	document.getElementById("fairText").value = tmp;
-	console.log(tmp, loc);
-}*/
-
-/**
- * Deletes from Fair Space the last consecutive deletion
- * @param {number} direction The direction of change (left = -1, right = 1)
- * @param {number} numOfCharsDel Number of characters deleted
- * @param {number} loc The location of deletion
- 
-function deleteIntoFair(direction, numOfCharsDel, loc) {
-	var current = document.getElementById("fairText").value;
-	var tmp = "";
-	switch (direction) {
-		case -1:
-			tmp =
-				current.slice(0, loc - numOfCharsDel + 1) +
-				current.slice(loc + 1);
-			break;
-		case 1:
-			tmp = current.slice(0, loc) + current.slice(loc + numOfCharsDel);
-			console.log("---->>>  ", current.slice(loc + numOfCharsDel));
-			break;
-		default:
-			break;
+	if (lastCopy != null) {
+		lastCopy[1] = 0;
+		operations.splice(0, 0, lastCopy);
 	}
-	document.getElementById("fairText").value = tmp;
-	//console.log(tmp, loc);
-}*/
-
-/**
- * Sends the last insertion operation to server when a new deletion begins
- * @returns {void}
- */
-function instantInsert() {
-	if (start == -1) return;
-	generateInsertion(insertedChange, start);
-
-	//insertIntoFair(insertedChange, start);
-	insertedChange = "";
-	prev = "";
-	lastChange = -1;
-	start = -1;
-}
-
-/**
- * Sends the last deletion operation to server when a new insertion begins
- * @returns {void}
- */
-function instantDelete() {
-	if (deleteCounter == 0) return;
-	generateDeletion(lastDeletionDirection, deleteCounter, start);
-
-	//deleteIntoFair(lastDeletionDirection, deleteCounter, start);
-	deleteCounter = 0;
-	lastChange = -1;
-	start = -1;
-	lastDeletionDirection = 0;
-}
-
-/**
- * Handles an insertion on key press
- * @param {string} change The character inserted
- * @param {number} at The location of insertion
- */
-function insertAction(change, at) {
-	//console.log(change, at);
-	/*console.log(
-		"In Insert Action\n",
-		change,
-		state,
-		lastChange,
-		at,
-		insertedChange
-	);*/
-	if (state == 1) instantDelete();
-	if (at == lastChange + 1) {
-		if (insertedChange.length == 0) start = at;
-		insertedChange += change;
-		prev = insertedChange;
-		lastChange = at;
-	} else {
-		if (start != -1) {
-			generateInsertion(insertedChange, start);
-		}
-		//insertIntoFair(insertedChange, start);
-		insertedChange = change;
-		prev = insertedChange;
-		lastChange = at;
-		start = at;
+	if (lastInsert != "") {
+		operations.splice(0, 0, [1, lastInsert]);
 	}
-
-	//console.log("Inserted change :    ", insertedChange, "\nLast change :   ", lastChange);
-	//return [insertedChange, lastChange];
-	state = 0;
+	return operations;
 }
-
-/**
- * Handles a deletion on key press
- * @param {string} change The character inserted
- * @param {number} at The location of insertion
- */
-function deleteAction(direction, at) {
-	//console.log(change, at);
-	/*console.log(
-		"In Delete Action\n",
-		deleteCounter,
-		state,
-		lastDeletionDirection,
-		at,
-		direction
-	);*/
-	if (state == 0) instantInsert();
-
-	if (deleteCounter == 0) {
-		start = at;
-		deleteCounter++;
-		//prev = insertedChange;
-		lastChange = at;
-		lastDeletionDirection = direction;
-	} else if (
-		direction == lastDeletionDirection &&
-		((direction == 1 && at == lastChange) ||
-			(direction == -1 && at == lastChange - 1))
-	) {
-		deleteCounter++;
-		//prev = insertedChange;
-		lastChange = at;
-		lastDeletionDirection = direction;
-	} else {
-		if (start != 1) {
-			generateDeletion(lastDeletionDirection, deleteCounter, start);
-		}
-		//deleteIntoFair(lastDeletionDirection, deleteCounter, start);
-		deleteCounter = 1;
-		lastChange = at;
-		start = at;
-		lastDeletionDirection = direction;
-	}
-
-	//console.log("Inserted change :    ", insertedChange, "\nLast change :   ", lastChange);
-	//return [insertedChange, lastChange];
-	state = 1;
-}
-
-var prev = "";
-var insertedChange = "";
-var deleteCounter = 0;
-var lastDeletionDirection = 0;
-var lastChange = -1;
-var start = 0;
-var state = 0; // 0 = Insertion	1 = Deletion
-var operation = []; // Stores the list of suboperations
 
 var SENDING_QUEUE_NAME = "";
 var RECEIVING_QUEUE_NAME = "";
@@ -463,31 +254,9 @@ function registerKeyListeners() {
 	input.value = "";
 	// clear fair space
 	document.getElementById("fairText").value = "";
-	// reinit global state
-	prev = "";
-	insertedChange = "";
-	deleteCounter = 0;
-	lastDeletionDirection = 0;
-	lastChange = -1;
-	start = 0;
-	state = 0; // 0 = Insertion	1 = Deletion
-	// add listeners
-	input.addEventListener("keyup", function (event) {
-		var text = document.getElementById("textSpace").value;
-		const key = event.key; // const {key} = event; ES6+
-		var results = [];
-		if (key === "Backspace" || key === "Delete") {
-			results.push(getDifference(prev, text, key));
-			deleteAction(results[0][0], results[0][2]);
-			prev = text;
-		} else if (event.key.length == 1) {
-			results.push(getDifference(prev, text, key));
-			insertAction(results[0][1], results[0][2]);
-			prev = text;
-		}
-		//console.log(results);
-	});
 }
+
+// window.onload = registerKeyListeners;
 
 // counter to mark the index of the operation from which the server should send
 var receive_counter = 0;
@@ -556,29 +325,33 @@ function apply_transformation(operations) {
 		if (op[0] == 1) {
 			finaltext += op[1];
 		} else {
-			finaltext += text.slice(op[1], op[2] + 1);
+			finaltext += text.slice(op[1], op[2]);
 		}
 	}
 	//return finaltext;
 	document.getElementById("fairText").value = finaltext;
-	document.getElementById("textSpace").value = finaltext;
-	//reset all the variables
-	prev = finaltext;
-	insertedChange = "";
-	deleteCounter = 0;
-	lastDeletionDirection = 0;
-	lastChange = finaltext.length;
-	start = 0;
-	state = 0;
+	// document.getElementById("textSpace").value = finaltext;
 }
 
 function flushOperations() {
 	if (RECEIVING_QUEUE_NAME == "") return;
-	if (operation.length == 1) return;
-	//console.log(operation);
-	post_data(URL, { operation_list: operation });
-	// apply_transformation();
-	operation = [[0, 0, document.getElementById("textSpace").value.length]];
+	var source = document.getElementById("fairText").value;
+	var dest = document.getElementById("textSpace").value;
+	if (source == dest) return;
+	var distanceMatrix = levenshteinDistance(source, dest);
+	var operations = levenshteinOperation(distanceMatrix, source, dest);
+	if (
+		operations.length == 1 &&
+		operations[0][0] == 0 &&
+		operations[0][2] == source.length
+	) {
+		// if this is just a copy, don't bother
+		return;
+	}
+	console.log("[x] Sending: ");
+	console.log(operations);
+	// console.log(operations);
+	if (operations.length > 0) post_data(URL, { operation_list: operations });
 }
 
 const INACTIVE_TIMEOUT_MILLS = 1000 * 1;
