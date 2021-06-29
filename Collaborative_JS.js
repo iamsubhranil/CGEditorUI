@@ -36,6 +36,7 @@ function post_data(
 	var http = new XMLHttpRequest();
 	var url = server;
 	data.operation = operation;
+	data.clientID = CLIENT_ID;
 	data.sending_queue_name = SENDING_QUEUE_NAME;
 	data.receiving_queue_name = RECEIVING_QUEUE_NAME;
 	var params = JSON.stringify(data); //JSON.parse(data);
@@ -133,6 +134,7 @@ function levenshteinOperation(distance, from, to) {
 
 var SENDING_QUEUE_NAME = "";
 var RECEIVING_QUEUE_NAME = "";
+var CLIENT_ID = -1;
 var URL = "";
 const QUEUE_NAME_LENGTH = 64;
 
@@ -235,8 +237,11 @@ function performConnection(isJoin) {
 			updateStatus(err);
 			return;
 		}
+		// extract the client id
+		var parts = ok.split(" clientID=");
+		CLIENT_ID = parts[1];
 		// ok should contain the receiving queue name from producer
-		RECEIVING_QUEUE_NAME = ok;
+		RECEIVING_QUEUE_NAME = parts[0];
 		console.log("[x] Queue established successfully! Reply: '" + ok + "'");
 		updateStatus("Connected");
 		document.getElementById("session_id_value").innerHTML =
