@@ -285,29 +285,32 @@ function eventReceiever() {
 					"Invalid session ID! (maybe disconnected due to inactivity)"
 				);
 				document.getElementById("session_id_value").innerHTML = "-";
-			} else if (http.status == ERR_NO_NEW_OPERATION) {
-				//console.log("[!] Error: No new Operation received!");
-			} else if (http.status == 200) {
-				try {
-					var res = JSON.parse(http.response);
-					//console.log("[+] Received message from Server --> ");
-					//console.log(res);
-					if (res.sentFrom < receive_counter) {
-						//console.log("[!] Info: Ignoring old changes!");
-					} else {
-						apply_transformation(res.changesToUpdate);
-						receive_counter += res.changesToUpdate.length;
-					}
-				} catch (err) {
-					console.log(
-						"Exception thrown: " +
-							err.message +
-							"\nResponse: " +
-							http.response
-					);
-				}
 			} else {
-				//console.log("[!] Unknown Error: " + http.response);
+				var bak = document.getElementById("textSpace").value;
+				if (http.status == ERR_NO_NEW_OPERATION) {
+					//console.log("[!] Error: No new Operation received!");
+				} else if (http.status == 200) {
+					try {
+						var res = JSON.parse(http.response);
+						//console.log("[+] Received message from Server --> ");
+						//console.log(res);
+						if (res.sentFrom < receive_counter) {
+							//console.log("[!] Info: Ignoring old changes!");
+						} else {
+							apply_transformation(res.changesToUpdate);
+							receive_counter += res.changesToUpdate.length;
+						}
+					} catch (err) {
+						console.log(
+							"Exception thrown: " +
+								err.message +
+								"\nResponse: " +
+								http.response
+						);
+					}
+				} else {
+				}
+				flushOperations(bak);
 			}
 		}
 	);
@@ -326,7 +329,12 @@ function apply_transformation(operations) {
 		// we sent multiple flushes, since each flush resets our
 		// operation array, a new range starting with 0 denotes
 		// it is part of a later flush.
-		if (i > 0 && operations[i][0] == 0 && operations[i][1] == 0) {
+		if (
+			i > 0 &&
+			operations[i][0] == 0 &&
+			operations[i][1] == 0 &&
+			operations[i][2] <= finaltext.length
+		) {
 			text = finaltext;
 			finaltext = "";
 		} //Insertion at beginning was wrongly handled by this block
@@ -339,31 +347,32 @@ function apply_transformation(operations) {
 	}
 	//return finaltext;
 	document.getElementById("fairText").value = finaltext;
-	// document.getElementById("textSpace").value = finaltext;
+	document.getElementById("textSpace").value = finaltext;
 }
 
-function flushOperations() {
+// willLookLike will store the previous version of the rough space
+var willLookLike = "";
+var oldOperations = null;
+
+function flushOperations(dest) {
 	if (RECEIVING_QUEUE_NAME == "") return;
 	var source = document.getElementById("fairText").value;
-	var dest = document.getElementById("textSpace").value;
-	if (source == dest) return;
-	var distanceMatrix = levenshteinDistance(source, dest);
-	var operations = levenshteinOperation(distanceMatrix, source, dest);
-	if (
-		operations.length == 1 &&
-		operations[0][0] == 0 &&
-		operations[0][2] == source.length
-	) {
-		// if this is just a copy, don't bother
+	console.log("source: " + source);
+	console.log("wll: " + willLookLike);
+	console.log("dest: " + dest);
+	if (source == dest) {
+		willLookLike = dest;
 		return;
 	}
+	if (willLookLike == dest) return;
+	var distanceMatrix = levenshteinDistance(source, dest);
+	var operations = levenshteinOperation(distanceMatrix, source, dest);
 	console.log("[x] Sending: ");
 	console.log(operations);
 	// console.log(operations);
 	if (operations.length > 0) post_data(URL, { operation_list: operations });
+	willLookLike = dest;
 }
 
-const INACTIVE_TIMEOUT_MILLS = 1000 * 1;
-const FLUSH_TIMEOUT_MILLS = 1000 * 1;
-setInterval(eventReceiever, INACTIVE_TIMEOUT_MILLS);
-setInterval(flushOperations, FLUSH_TIMEOUT_MILLS);
+const PING_TIMEOUT_MILLS = 1000 * 1;
+setInterval(eventReceiever, PING_TIMEOUT_MILLS);
