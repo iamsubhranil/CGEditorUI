@@ -52,6 +52,7 @@ function post_data(
 }
 
 function levenshteinDistance(from, to) {
+	if (to == "") return null;
 	var matrix = new Array((from.length + 1) * (to.length + 1));
 	const width = to.length + 1;
 	const height = from.length + 1;
@@ -78,6 +79,9 @@ function levenshteinDistance(from, to) {
 }
 
 function levenshteinOperation(distance, from, to) {
+	if (distance == null) {
+		return [[0, 0, -1]];
+	}
 	var operations = [];
 	var lastCopy = null;
 	var lastInsert = "";
@@ -114,11 +118,11 @@ function levenshteinOperation(distance, from, to) {
 			}
 			if (present == left) {
 				currentWidth--;
-			} else if (present == up) {
-				currentHeight--;
-			} else {
+			} else if (present == corner) {
 				currentHeight--;
 				currentWidth--;
+			} else {
+				currentHeight--;
 			}
 		}
 	}
