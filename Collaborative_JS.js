@@ -310,12 +310,13 @@ function eventReceiever() {
 					}
 				} else {
 				}
-				flushOperations(bak);
+				flushOperations();
 			}
 		}
 	);
 }
 
+//var cursorPos = -1;
 /**
  * Applies the operation list on fair space text
  */
@@ -348,14 +349,17 @@ function apply_transformation(operations) {
 	//return finaltext;
 	document.getElementById("fairText").value = finaltext;
 	document.getElementById("textSpace").value = finaltext;
+	//console.log(cursorPos);
+	//document.getElementById("textSpace").setSelectionRange(cursorPos, cursorPos);
 }
 
-// willLookLike will store the previous version of the rough space
+// willLookLike will store the previous version of the rough space (dest)
 var willLookLike = "";
 var oldOperations = null;
 
-function flushOperations(dest) {
+function flushOperations() {
 	if (RECEIVING_QUEUE_NAME == "") return;
+	var dest = document.getElementById("textSpace").value;
 	var source = document.getElementById("fairText").value;
 	console.log("source: " + source);
 	console.log("wll: " + willLookLike);
@@ -365,11 +369,12 @@ function flushOperations(dest) {
 		return;
 	}
 	if (willLookLike == dest) return;
-	var distanceMatrix = levenshteinDistance(source, dest);
-	var operations = levenshteinOperation(distanceMatrix, source, dest);
+	var distanceMatrix = levenshteinDistance(willLookLike, dest);
+	var operations = levenshteinOperation(distanceMatrix, willLookLike, dest);
 	console.log("[x] Sending: ");
 	console.log(operations);
 	// console.log(operations);
+	//cursorPos = document.getElementById("textSpace").selectionStart;
 	if (operations.length > 0) post_data(URL, { operation_list: operations });
 	willLookLike = dest;
 }
