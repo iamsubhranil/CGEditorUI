@@ -4,29 +4,42 @@
 	<meta charset="UTF-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 	<title>Editor</title>
+	<link rel="stylesheet" href="Stylesheet.css">
 </head>
 <body>
-    <label> ProducerUrl: </label>
-    <input id="producer_url" value="http://localhost:8080"/>
+	<h3 class="hide">
+		<label> ProducerUrl: </label>
+		<input id="producer_url" value="http://localhost:8080"/>
+	</h3>
     <br/>
-	<input id="jointext"/>
-	<button id="joinbutton" onclick="performConnection(true)"> Join </button>
-	<button id="createbutton" onclick="performConnection(false)"> Create </button> 
-	<br/>
-	<label id="connection_label"> Connection Status: </label>
-	<label id="connection_status"> Disconnected </label>
-	<br/>
-	<label id="session_id_label"> Session ID: </label>
-	<label id="session_id_value"> - </label>
-	<br/>
-	<div>
-		Rough Space <br/>
-		<textarea id="textSpace"></textarea>
+	<div class="div_design1" >
+		<center>
+			<input id="jointext"/>
+			<button class="button_design" id="joinbutton" onclick="performConnection(true)"> Join </button>
+			<button class="button_design" id="createbutton" onclick="performConnection(false)"> Create </button> 
+			<p id="welcome">
+				<marquee behavior="alternate">Welcome</marquee>
+			</p>
+			<br/>
+			<label id="connection_label"> Connection Status: </label>
+			<label id="connection_status"> Disconnected </label>
+			<br/>
+			<label id="session_id_label"> Session ID: </label>
+			<label id="session_id_value"> - </label>
+			<br/><br>
+		</center>
 	</div>
-	<div>
-		<br/>Fair Space <br/>
-		<textarea id="fairText"></textarea>
-	</div>
+	<center>
+		<div class="div_design2">
+			Writing Pad <br/>
+			<textarea class="text_size" id="textSpace" placeholder="Start typing while smiling ..." autofocus></textarea>
+			<br><br>
+			<!--<br/>Fair Space <br/>-->
+			<textarea class="text_size" id="fairText" hidden></textarea>
+		</div>
+		<img src="logo.png" width="200" height="200">
+		<p>A product of the University of Calcutta Department of Computer Science and Engineering</p>
+	</center>
 	<script src="Collaborative_JS.js"></script>
 </body>
 </html>

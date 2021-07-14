@@ -1,0 +1,41 @@
+.button_design {
+	width:200px;
+	padding:7px;
+	background-color:black;
+	color:white;
+	text-align: center;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	border-radius: 20px;
+	border: 10px solid #a3a3c2;
+}
+
+.button_design:hover {
+	background-color: #a3a3c2;
+	font-size: 18px;
+	color:black;
+	border: 10px solid black;
+}
+
+.div_design1 {
+	font-size: 20px;
+}
+
+.div_design2 {
+	font-size: 20px;
+}
+
+.text_size {
+	resize: none;
+	width: 1000px;
+	height: 150px;
+}
+
+.hide {
+	visibility: hidden;
+}
+
+#welcome {
+	color:red;
+	font-size: 20px;
+}
