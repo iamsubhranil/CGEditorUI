@@ -9,7 +9,7 @@
 <body>
 	<h3>
 		<label>Your Server resides at :  </label>
-		<input id="producer_url" value="http://localhost:8080"/>
+		<input id="producer_url" value="https://cgeditor-producer.herokuapp.com/"/>
 	</h3>
     <br/>
 	<div class="div_design1" >
@@ -17,9 +17,7 @@
 			<input id="jointext"/>
 			<button class="button_design" id="joinbutton" onclick="performConnection(true)"> Join </button>
 			<button class="button_design" id="createbutton" onclick="performConnection(false)"> Create </button> 
-			<p id="welcome">
-				<marquee behavior="alternate">Welcome</marquee>
-			</p>
+			<br/>
 			<br/>
 			<label id="connection_label"> Connection Status: </label>
 			<label id="connection_status"> Disconnected </label>
@@ -31,14 +29,12 @@
 	</div>
 	<center>
 		<div class="div_design2">
-			Writing Pad <br/>
+			Writing Pad <br/><br/>
 			<textarea class="text_size" id="textSpace" placeholder="Start typing while smiling ..." autofocus></textarea>
 			<br><br>
 			<!--<br/>Fair Space <br/>-->
 			<textarea class="text_size" id="fairText" hidden></textarea>
 		</div>
-		<img src="logo.png" width="200" height="200">
-		<p>A product of the University of Calcutta Department of Computer Science and Engineering</p>
 	</center>
 	<script src="Collaborative_JS.js"></script>
 </body>

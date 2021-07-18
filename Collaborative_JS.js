@@ -379,5 +379,5 @@ function flushOperations() {
 	willLookLike = dest;
 }
 
-const PING_TIMEOUT_MILLS = 1000 * 1;
+const PING_TIMEOUT_MILLS = 1000 * 0.5;
 setInterval(eventReceiever, PING_TIMEOUT_MILLS);
