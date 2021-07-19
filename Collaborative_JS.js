@@ -381,3 +381,35 @@ function flushOperations() {
 
 const PING_TIMEOUT_MILLS = 1000 * 0.5;
 setInterval(eventReceiever, PING_TIMEOUT_MILLS);
+
+
+//For downloading text
+
+let downloadfile = () => {
+	
+	// Get the data from each element on the form.
+	const text = document.getElementById('fairText');
+	
+	
+	// This variable stores all the data.
+	let data = 
+		'\r text: ' + text.value + ' \r\n ' ;
+	
+	// Convert the text to BLOB.
+	const textToBLOB = new Blob([data], { type: 'text/plain' });
+	const sFileName = 'formData.txt';	   // The file to save the data.
+
+	let newLink = document.createElement("a");
+	newLink.download = sFileName;
+
+	if (window.webkitURL != null) {
+		newLink.href = window.webkitURL.createObjectURL(textToBLOB);
+	}
+	else {
+		newLink.href = window.URL.createObjectURL(textToBLOB);
+		newLink.style.display = "none";
+		document.body.appendChild(newLink);
+	}
+
+	newLink.click(); 
+}
