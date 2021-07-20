@@ -195,7 +195,7 @@ function establishQueue(cb, qname = "", count = 1) {
 
 	post_data(
 		URL,
-		{},
+		{ fileName: document.getElementById("fileName").value },
 		// this is a 'join' call if we have an user provided queue
 		qname.length == 0 ? OPERATION_CREATE : OPERATION_JOIN,
 		function (http) {
@@ -250,19 +250,10 @@ function performConnection(isJoin) {
 		updateStatus("Connected");
 		document.getElementById("session_id_value").innerHTML =
 			SENDING_QUEUE_NAME;
-		registerKeyListeners();
+		document.getElementById("fairText").value = "";
+		document.getElementById("textSpace").value = "";
+		receive_counter = 0;
 	}, qname);
-}
-
-/**
- * Decides action to take based on key presses in the editing space
- */
-function registerKeyListeners() {
-	const input = document.getElementById("textSpace");
-	// clear input space
-	input.value = "";
-	// clear fair space
-	document.getElementById("fairText").value = "";
 }
 
 // window.onload = registerKeyListeners;
@@ -382,34 +373,29 @@ function flushOperations() {
 const PING_TIMEOUT_MILLS = 1000 * 0.5;
 setInterval(eventReceiever, PING_TIMEOUT_MILLS);
 
-
 //For downloading text
 
 let downloadfile = () => {
-	
 	// Get the data from each element on the form.
-	const text = document.getElementById('fairText');
-	
-	
+	const text = document.getElementById("fairText");
+
 	// This variable stores all the data.
-	let data = 
-		'\r text: ' + text.value + ' \r\n ' ;
-	
+	let data = "\r text: " + text.value + " \r\n ";
+
 	// Convert the text to BLOB.
-	const textToBLOB = new Blob([data], { type: 'text/plain' });
-	const sFileName = 'downloadtext.txt';	   // The file to save the data.
+	const textToBLOB = new Blob([data], { type: "text/plain" });
+	const sFileName = "downloadtext.txt"; // The file to save the data.
 
 	let newLink = document.createElement("a");
 	newLink.download = sFileName;
 
 	if (window.webkitURL != null) {
 		newLink.href = window.webkitURL.createObjectURL(textToBLOB);
-	}
-	else {
+	} else {
 		newLink.href = window.URL.createObjectURL(textToBLOB);
 		newLink.style.display = "none";
 		document.body.appendChild(newLink);
 	}
 
-	newLink.click(); 
-}
+	newLink.click();
+};
