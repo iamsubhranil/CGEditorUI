@@ -1,34 +1,91 @@
+
 .button_design {
-	width:200px;
-	padding:7px;
+	position: relative;
+	top: 58px;
+	left: 100px;
+	width: 116px;
+	height: 40px;
+	text-align: center;
+	background-color: black;
+	color: white;
+	font-size: 16px;
+	font-weight:bold;
+	border-radius: 15px 15px 15px 0px;
+	font-family: Arial, Helvetica, sans-serif;
+	border: none;
+	/*padding:7px;
 	background-color:black;
 	color:white;
 	text-align: center;
-	font-family: Arial, Helvetica, sans-serif;
+	
 	font-size: 18px;
 	border-radius: 20px;
-	border: 10px solid #a3a3c2;
+	border: 10px solid #a3a3c2;*/
 }
+
 
 .button_design:hover {
-	background-color: #a3a3c2;
-	font-size: 18px;
-	color:black;
-	border: 10px solid black;
+	background-color: white;
+	color: black;
+	box-shadow: 0px 6px 8px gray;
+	border: none;
 }
+.button_design2
+{
 
+	position: relative;
+	bottom: 20px;
+	left: 360px;
+	width:80px;
+	height: 40px;
+	text-align: center;
+	background-color: white;
+	box-shadow: 0px 6px 8px gray;
+	border: none;
+	color: black;
+	font-size: 16px;
+	font-weight: 500 ;
+	font-family: Arial, Helvetica, sans-serif;
+}
+.button_design2:hover
+{
+	background-color: black;
+	color: white;
+	box-shadow: 0px 6px 8px black;
+}
 .div_design1 {
 	font-size: 20px;
 }
 
+
 .div_design2 {
 	font-size: 20px;
+}
+#connection_label,#connection_status,#session_id_label,#session_id_value
+{
+	position: relative;
+	top: 50px;
+}
+#writing
+{
+	height: 28px;
+	width: 120px;
+	border-radius: 0px 10px 0px 0px;
+	font-size: 18px;
+	text-align: center;
+	position: absolute;
+	top: 328px;
+	box-shadow: 10px 10px 10px gray;
+	border: 4px;
+	background-color: black;
+	color: white;
+
 }
 
 .text_size {
 	resize: none;
-	width: 1000px;
-	height: 150px;
+	width: 900px;
+	height: 170px;
 }
 
 .hide {
@@ -36,6 +93,85 @@
 }
 #jointext{
 	resize: none;
-	width: 450px;
+	width: 350px;
+	height: 30px;
+	position: relative;
+	top: 58px;
+	left:  100px;
+	border-radius: 10px 10px 0px 10px;
+	box-shadow:  8px 8px 8px gray;
+	border: none;
+}
+#jointext:hover
+{
+	box-shadow:  6px 6px 8px black;
+}
+#meet{
+	color: black;
+	font-size: 24px;
+	position: absolute;
+	top:92px;
+	left: 380px;
+}
+.div_design2 textarea
+{
+	position: relative;
+	top: 30px;
+	border-radius:0px 23px 23px 23px ;
+	box-shadow: 0px 8px 10px gray;
+	border:none;
+}
+h3
+{
+	position:absolute ;
+	bottom: 5px;
+	color: black;
+	font-style:  italic;
+}
+h3 input
+{
+	width: 150px;
 	height: 20px;
+	border-radius: 10px 6px 10px 6px ;
+}
+h4 input
+{
+	position:relative ;
+	top: 63px;
+	left: 65px;
+	color: gray;
+	font-style:  italic;
+	width: 300px;
+	height: 30px;
+	border-radius: 10px 6px 10px 6px ;
+	box-shadow: 0px 6px 8px gray;
+	border: none;
+}
+h4 input:hover
+{
+	box-shadow: 0px 6px 8px black;
+}
+.button_design3
+{
+	position: relative;
+	top: 0px;
+	left: 280px;
+	width: 116px;
+	height: 40px;
+	text-align: center;
+	background-color: black;
+	color: white;
+	font-size: 16px;
+	font-weight:bold;
+	border-radius: 15px 15px 15px 0px;
+	font-family: Arial, Helvetica, sans-serif;
+	border: none;
+}
+.button_design3:hover
+{
+	background-color: white;
+	color: black;
+	box-shadow: 0px 6px 8px gray;
+	border: none;
+	
 }
