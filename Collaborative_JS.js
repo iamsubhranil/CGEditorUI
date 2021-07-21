@@ -380,11 +380,14 @@ let downloadfile = () => {
 	const text = document.getElementById("fairText");
 
 	// This variable stores all the data.
-	let data = "\r text: " + text.value + " \r\n ";
+//	let data = "\r text: " + text.value + " \r\n ";
+	let data = text.value;
 
 	// Convert the text to BLOB.
 	const textToBLOB = new Blob([data], { type: "text/plain" });
-	const sFileName = "downloadtext.txt"; // The file to save the data.
+	//Taking file name as user input
+	var sFileName = window.prompt("Enter file name: ");
+//	const sFileName = "downloadtext.txt"; // The file to save the data.
 
 	let newLink = document.createElement("a");
 	newLink.download = sFileName;
